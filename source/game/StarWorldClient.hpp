@@ -216,6 +216,7 @@ private:
     void addAudio(AudioInstancePtr audio) override;
     void addTilePreview(PreviewTile preview) override;
     void addOverheadBar(OverheadBar bar) override;
+    void addShaderEffect(ShaderEffectInstance effect) override;
 
     Map<EntityRenderLayer, List<Drawable>> drawables;
     List<LightSource> lightSources;
@@ -223,6 +224,7 @@ private:
     List<AudioInstancePtr> audios;
     List<PreviewTile> previewTiles;
     List<OverheadBar> overheadBars;
+    List<ShaderEffectInstance> shaderEffects;
   };
 
   struct DamageNumber {

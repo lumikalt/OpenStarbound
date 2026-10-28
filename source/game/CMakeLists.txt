@@ -118,6 +118,7 @@ SET (star_game_HEADERS
     StarRootLoader.hpp
     StarServerClientContext.hpp
     StarSky.hpp
+    StarShaderEffect.hpp
     StarSkyParameters.hpp
     StarSkyRenderData.hpp
     StarSkyTypes.hpp
@@ -392,6 +393,7 @@ SET (star_game_SOURCES
     StarRootLoader.cpp
     StarServerClientContext.cpp
     StarSky.cpp
+    StarShaderEffect.cpp
     StarSkyParameters.cpp
     StarSkyRenderData.cpp
     StarSkyTypes.cpp

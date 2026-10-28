@@ -6,6 +6,7 @@
 #include "StarDrawable.hpp"
 #include "StarLightSource.hpp"
 #include "StarGameTypes.hpp"
+#include "StarShaderEffect.hpp"
 
 namespace Star {
 
@@ -24,6 +25,9 @@ public:
   virtual void addAudio(AudioInstancePtr audio) = 0;
   virtual void addTilePreview(PreviewTile preview) = 0;
   virtual void addOverheadBar(OverheadBar bar) = 0;
+
+  // screen region shader effect, ignored by callbacks that do not draw them
+  virtual void addShaderEffect(ShaderEffectInstance) {}
 
   // Convenience non-virtuals
 

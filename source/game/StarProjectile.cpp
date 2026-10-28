@@ -72,6 +72,9 @@ void Projectile::init(World* world, EntityId entityId, EntityMode mode, Connecti
   m_movementController->setIgnorePhysicsEntities({entityId});
 
   m_timeToLive = m_parameters.getFloat("timeToLive", m_config->timeToLive);
+  m_initialTimeToLive = m_timeToLive;
+  if (world->isClient())
+    m_shaderEffects = shaderEffectSpecsFromParameters(m_parameters);
   setSourceEntity(m_sourceEntity, m_trackSourceEntity);
 
   m_periodicActions.clear();
@@ -384,6 +387,12 @@ void Projectile::render(RenderCallback* renderCallback) {
   drawable.fullbright = m_config->fullbright;
   drawable.translate(position());
   renderCallback->addDrawable(std::move(drawable), m_config->renderLayer);
+
+  if (!m_shaderEffects.empty()) {
+    auto age = max(0.0f, m_initialTimeToLive - m_timeToLive);
+    for (auto const& effect : m_shaderEffects)
+      renderCallback->addShaderEffect({effect.source, position() + effect.offset, effect.radius, effect.reach, age, effect.params});
+  }
 }
 
 void Projectile::renderLightSources(RenderCallback* renderCallback) {

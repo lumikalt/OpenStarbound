@@ -138,6 +138,14 @@ public:
   // frame, because it will result in a recompile of the underlying shader set.
   virtual void loadEffectConfig(String const& name, Json const& effectConfig, StringMap<String> const& shaders) = 0;
 
+  // Loads an effect while rendering, for shaders that arrive at runtime.
+  // Unlike loadEffectConfig, a shader that does not compile or link
+  // is not replaced by the default one.
+  // Instead, nothing is loaded, false is returned, the error says why.
+  // The current effect stays as it was.
+  virtual bool loadRuntimeEffect(String const& name, Json const& effectConfig, StringMap<String> const& shaders, String& error) = 0;
+  virtual void unloadEffect(String const& name) = 0;
+
   // The effect config will specify named parameters and textures which can be
   // set here.
   virtual void setEffectParameter(String const& parameterName, RenderEffectParameter const& parameter) = 0;

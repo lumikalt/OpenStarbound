@@ -8,6 +8,7 @@
 #include "StarParticle.hpp"
 #include "StarWeatherTypes.hpp"
 #include "StarEntity.hpp"
+#include "StarShaderEffect.hpp"
 #include "StarThread.hpp"
 #include "StarCellularLighting.hpp"
 
@@ -33,6 +34,7 @@ struct WorldRenderData {
   List<Particle> const* particles;
 
   List<OverheadBar> overheadBars;
+  List<ShaderEffectInstance> shaderEffects;
   List<Drawable> nametags;
 
   List<Drawable> backgroundOverlays;
@@ -53,6 +55,7 @@ inline void WorldRenderData::clear() {
   entityDrawables.clear();
   particles = nullptr;
   overheadBars.clear();
+  shaderEffects.clear();
   nametags.clear();
   backgroundOverlays.clear();
   foregroundOverlays.clear();

@@ -680,6 +680,7 @@ void WorldClient::render(WorldRenderData& renderData, unsigned bufferTiles) {
       m_samples.appendAll(std::move(renderCallback.audios));
       m_previewTiles.appendAll(std::move(renderCallback.previewTiles));
       renderData.overheadBars.appendAll(std::move(renderCallback.overheadBars));
+      renderData.shaderEffects.appendAll(std::move(renderCallback.shaderEffects));
 
     }, [](EntityPtr const& a, EntityPtr const& b) {
       return a->entityId() < b->entityId();
@@ -2615,6 +2616,10 @@ void WorldClient::ClientRenderCallback::addTilePreview(PreviewTile preview) {
 
 void WorldClient::ClientRenderCallback::addOverheadBar(OverheadBar bar) {
   overheadBars.append(std::move(bar));
+}
+
+void WorldClient::ClientRenderCallback::addShaderEffect(ShaderEffectInstance effect) {
+  shaderEffects.append(std::move(effect));
 }
 
 double WorldClient::epochTime() const {

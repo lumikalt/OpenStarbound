@@ -3,6 +3,7 @@
 #include "StarUniverseServer.hpp"
 #include "StarUniverseClient.hpp"
 #include "StarWorldPainter.hpp"
+#include "StarShaderEffectPainter.hpp"
 #include "StarGameTypes.hpp"
 #include "StarMainInterface.hpp"
 #include "StarMainMixer.hpp"
@@ -117,6 +118,7 @@ private:
   // Valid if main app state > Title
   PlayerPtr m_player;
   WorldPainterPtr m_worldPainter;
+  ShaderEffectPainterPtr m_shaderEffectPainter;
   WorldRenderData m_renderData;
   MainInterfacePtr m_mainInterface;
   

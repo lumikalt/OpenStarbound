@@ -10,6 +10,7 @@
 #include "StarMovementController.hpp"
 #include "StarParticle.hpp"
 #include "StarLuaComponents.hpp"
+#include "StarShaderEffect.hpp"
 
 namespace Star {
 
@@ -166,6 +167,8 @@ private:
   MovementControllerPtr m_movementController;
   EffectEmitterPtr m_effectEmitter;
   float m_timeToLive;
+  float m_initialTimeToLive = 0.0f;
+  List<ShaderEffectSpec> m_shaderEffects;
 
   Line2F m_travelLine;
   EntityId m_sourceEntity;

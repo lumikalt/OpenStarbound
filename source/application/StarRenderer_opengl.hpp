@@ -33,6 +33,8 @@ public:
 
   void loadConfig(Json const& config) override;
   void loadEffectConfig(String const& name, Json const& effectConfig, StringMap<String> const& shaders) override;
+  bool loadRuntimeEffect(String const& name, Json const& effectConfig, StringMap<String> const& shaders, String& error) override;
+  void unloadEffect(String const& name) override;
 
   void setEffectParameter(String const& parameterName, RenderEffectParameter const& parameter) override;
   void setEffectScriptableParameter(String const& effectName, String const& parameterName, RenderEffectParameter const& parameter) override;
@@ -242,6 +244,9 @@ private:
   void renderGlBuffer(GlRenderBuffer const& renderBuffer, Mat3F const& transformation);
 
   void setupGlUniforms(Effect& effect, Vec2U screenSize);
+  void loadEffectConfigImpl(String const& name, Json const& effectConfig, StringMap<String> const& shaders, bool useDefaultOnError);
+  String currentEffectName() const;
+  void restoreCurrentEffect(String const& name);
 
   RefPtr<OpenGlRenderer::GlFrameBuffer> getGlFrameBuffer(String const& id);
   void blitGlFrameBuffer(RefPtr<OpenGlRenderer::GlFrameBuffer> const& frameBuffer, bool const& useAlt = false);

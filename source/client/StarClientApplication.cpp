@@ -242,6 +242,7 @@ void ClientApplication::applicationInit(ApplicationControllerPtr appController) 
   m_mainMixer->setVolume(0.5);
   
   m_worldPainter = make_shared<WorldPainter>();
+  m_shaderEffectPainter = make_shared<ShaderEffectPainter>();
   m_guiContext = make_shared<GuiContext>(m_mainMixer->mixer(), appController);
   m_input = make_shared<Input>();
   m_voice = make_shared<Voice>(appController);  
@@ -293,6 +294,8 @@ void ClientApplication::renderInit(RendererPtr renderer) {
     m_titleScreen->renderInit(renderer);
   if (m_worldPainter)
     m_worldPainter->renderInit(renderer);
+  if (m_shaderEffectPainter)
+    m_shaderEffectPainter->renderInit(renderer);
 
   #ifdef STAR_ENABLE_STEAM_INTEGRATION
   #ifdef STAR_SYSTEM_LINUX
@@ -472,6 +475,8 @@ void ClientApplication::render() {
       LogMap::set("client_render_world_total", strf(u8"{:05d}\u00b5s", Time::monotonicMicroseconds() - totalStart));
       
       auto size = Vec2F(renderer->screenSize());
+      m_shaderEffectPainter->render(m_worldPainter->camera(), m_renderData.shaderEffects);
+
       auto quad = renderFlatRect(RectF::withSize(size / -2, size), Vec4B::filled(0), 0.0f);
       for (auto& layer : m_postProcessLayers) {
         if (layer.group ? layer.group->enabled : true) {
@@ -845,6 +850,7 @@ void ClientApplication::changeState(MainAppState newState) {
 
     if (auto renderer = Application::renderer()) {
       m_worldPainter->renderInit(renderer);
+      m_shaderEffectPainter->renderInit(renderer);
     }
   }
 }

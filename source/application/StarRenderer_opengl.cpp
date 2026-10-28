@@ -347,6 +347,51 @@ void OpenGlRenderer::loadConfig(Json const& config) {
 }
 
 void OpenGlRenderer::loadEffectConfig(String const& name, Json const& effectConfig, StringMap<String> const& shaders) {
+  loadEffectConfigImpl(name, effectConfig, shaders, true);
+}
+
+bool OpenGlRenderer::loadRuntimeEffect(String const& name, Json const& effectConfig, StringMap<String> const& shaders, String& error) {
+  // Loading makes the new effect current, hand the renderer back as it was.
+  // The effects are in a flat table, so the current one is kept by name.
+  auto previousName = currentEffectName();
+  bool loaded = true;
+  try {
+    loadEffectConfigImpl(name, effectConfig, shaders, false);
+  } catch (RendererException const& e) {
+    error = e.what();
+    loaded = false;
+  }
+  restoreCurrentEffect(previousName);
+  return loaded;
+}
+
+void OpenGlRenderer::unloadEffect(String const& name) {
+  auto find = m_effects.find(name);
+  if (find == m_effects.end())
+    return;
+  auto currentName = currentEffectName();
+  if (currentName == name)
+    currentName = "internal";
+  glDeleteProgram(find->second.program);
+  m_effects.erase(find);
+  restoreCurrentEffect(currentName);
+}
+
+String OpenGlRenderer::currentEffectName() const {
+  for (auto const& pair : m_effects) {
+    if (&pair.second == m_currentEffect)
+      return pair.first;
+  }
+  return "internal";
+}
+
+void OpenGlRenderer::restoreCurrentEffect(String const& name) {
+  m_currentEffect = &m_effects.get(name);
+  m_program = m_currentEffect->program;
+  glUseProgram(m_program);
+}
+
+void OpenGlRenderer::loadEffectConfigImpl(String const& name, Json const& effectConfig, StringMap<String> const& shaders, bool useDefaultOnError) {
   if (auto effect = m_effects.ptr(name)) {
     Logger::info("Reloading OpenGL effect {}", name);
     glDeleteProgram(effect->program);
@@ -380,6 +425,11 @@ void OpenGlRenderer::loadEffectConfig(String const& name, Json const& effectConf
     fragmentShader = compileShader(GL_FRAGMENT_SHADER, "fragment");
   }
   catch (RendererException const& e) {
+    if (!useDefaultOnError) {
+      if (vertexShader) glDeleteShader(vertexShader);
+      if (fragmentShader) glDeleteShader(fragmentShader);
+      throw;
+    }
     Logger::error("Shader compile error, using default: {}", e.what());
     if (vertexShader) glDeleteShader(vertexShader);
     if (fragmentShader) glDeleteShader(fragmentShader);
