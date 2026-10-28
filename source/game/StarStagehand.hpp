@@ -7,6 +7,7 @@
 #include "StarNetElementSystem.hpp"
 #include "StarStagehandDatabase.hpp"
 #include "StarRoot.hpp"
+#include "StarShaderEffect.hpp"
 
 namespace Star {
 
@@ -37,6 +38,7 @@ public:
   String name() const override;
 
   void update(float dt, uint64_t currentStep) override;
+  void render(RenderCallback* renderCallback) override;
 
   bool shouldDestroy() const override;
   
@@ -65,6 +67,8 @@ private:
   RectF m_boundBox;
 
   bool m_dead = false;
+
+  ShaderEffectSet m_shaderEffects;
       
   ClientEntityMode m_clientEntityMode;
 

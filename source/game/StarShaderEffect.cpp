@@ -33,4 +33,31 @@ List<ShaderEffectSpec> shaderEffectSpecsFromParameters(Json const& parameters) {
   return specs;
 }
 
+void ShaderEffectSet::set(Json const& shaderEffects) {
+  if (shaderEffects == m_json)
+    return;
+  m_json = shaderEffects;
+  m_specs = shaderEffectSpecsFromParameters(JsonObject{{"shaderEffects", shaderEffects}});
+}
+
+void ShaderEffectSet::clear() {
+  m_json = Json();
+  m_specs.clear();
+  m_start.reset();
+}
+
+bool ShaderEffectSet::empty() const {
+  return m_specs.empty();
+}
+
+List<ShaderEffectInstance> ShaderEffectSet::instances(Vec2F const& position) {
+  if (!m_start)
+    m_start = Time::monotonicTime();
+  float age = Time::monotonicTime() - *m_start;
+  List<ShaderEffectInstance> instances;
+  for (auto const& spec : m_specs)
+    instances.append({spec.source, position + spec.offset, spec.radius, spec.reach, age, spec.params});
+  return instances;
+}
+
 }

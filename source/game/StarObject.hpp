@@ -3,6 +3,7 @@
 #include "StarPeriodic.hpp"
 #include "StarPeriodicFunction.hpp"
 #include "StarNetElementSystem.hpp"
+#include "StarShaderEffect.hpp"
 #include "StarLuaComponents.hpp"
 #include "StarLuaAnimationComponent.hpp"
 #include "StarTileEntity.hpp"
@@ -225,6 +226,7 @@ private:
   ObjectConfigConstPtr m_config;
   Maybe<List<ObjectOrientationPtr>> m_orientations;
   NetElementHashMap<String, Json> m_parameters;
+  ShaderEffectSet m_shaderEffects;
 
   NetElementData<Maybe<String>> m_uniqueIdNetState;
 

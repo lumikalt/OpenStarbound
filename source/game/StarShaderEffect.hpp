@@ -4,6 +4,7 @@
 #include "StarVector.hpp"
 #include "StarList.hpp"
 #include "StarString.hpp"
+#include "StarTime.hpp"
 
 namespace Star {
 
@@ -33,6 +34,24 @@ struct ShaderEffectInstance {
 
 // Biggest source accepted from entity data
 size_t const MaxShaderEffectSourceSize = 16 * 1024;
+
+// The shader effects of an entity that keeps them in Json it may change at any
+// time (object parameters).
+// They are parsed again only when the Json differs.
+// Age is the time since this client first drew the effects.
+class ShaderEffectSet {
+public:
+  void set(Json const& shaderEffects);
+  void clear();
+  bool empty() const;
+
+  List<ShaderEffectInstance> instances(Vec2F const& position);
+
+private:
+  Json m_json;
+  List<ShaderEffectSpec> m_specs;
+  Maybe<double> m_start;
+};
 
 ShaderEffectSpec shaderEffectSpecFromJson(Json const& json);
 

@@ -1,4 +1,5 @@
 #include "StarStagehand.hpp"
+#include "StarEntityRendering.hpp"
 #include "StarDataStreamExtra.hpp"
 #include "StarJsonExtra.hpp"
 #include "StarConfigLuaBindings.hpp"
@@ -101,6 +102,13 @@ void Stagehand::update(float dt, uint64_t) {
   }
 }
 
+void Stagehand::render(RenderCallback* renderCallback) {
+  if (m_shaderEffects.empty())
+    return;
+  for (auto& instance : m_shaderEffects.instances(position()))
+    renderCallback->addShaderEffect(std::move(instance));
+}
+
 bool Stagehand::shouldDestroy() const {
   return m_dead;
 }
@@ -159,6 +167,11 @@ void Stagehand::readConfig(Json config) {
   }
 
   setKeepAlive(config.getBool("keepAlive", false));
+
+  if (auto effects = config.opt("shaderEffects"))
+    m_shaderEffects.set(*effects);
+  else
+    m_shaderEffects.clear();
 }
 
 LuaCallbacks Stagehand::makeStagehandCallbacks() {

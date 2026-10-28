@@ -4,7 +4,7 @@ OpenStarbound can draw a screen region shader effect for an entity.
 Since the shader travels with the entity, other OpenStarbound clients draw it without having the shader installed.
 
 An effect is an entry in the `shaderEffects` list of the **parameters** of an entity (`parameters` of `world.spawnProjectile`, object and monster parameters, …).
-For now, only projectiles work, more will follow.
+For now, only projectiles, objects and stagehands can be carriers (see "Carriers" below), more will follow.
 
 This is compatible with Retail clients, which simply ignore the parameter and don't load the shader.
 
@@ -51,3 +51,43 @@ Up to 8 instances of one shader are drawn per frame, the rest are dropped.
 This is to prevent some abuse.
 
 Effects draw over the world and under the interface, so they cannot cover interface panes.
+
+## Carriers
+
+The effect lives and dies with the entity that carries it.
+A carrier is mastered by whoever created it.
+Pick one by how long the effect should last.
+
+### Projectile
+
+Shader list goes in `parameters` of `world.spawnProjectile`.
+
+Lasts until the projectile ends.
+A client spawned projectile goes when that client leaves the world.
+`age` is the time since it was fired.
+
+### Object
+
+Shader list goes in `shaderEffects` in the object file or in the object's `parameters`, which win, synced to other clients.
+
+Lives as long as the object.
+It's saved with the world and not tied to a player.
+Centered on the object's position, i.e., its origin tile, so use `offset` to move it.
+
+### Stagehand
+
+| Stagehand | `shaderEffects` in the stagehand config / overrides | As long as the stagehand, which the server owns and saves. Other clients only get a stagehand whose `broadcastArea` (default 10 x 10 blocks around it) reaches their view, so set it as large as the effect's reach. |
+
+### Notes
+
+For objects and stagehands, `age` is the time since this client first drew the effect, so it differs between clients.
+Use it for looping, not for a one shot that must line up.
+
+A vanilla stagehand type with no behavior of its own makes a good carrier.
+For example, in admin on a server:
+
+```
+/spawnstagehand waypoint {"scripts":[],"keepAlive":true,"broadcastArea":[-20,-20,20,20],"shaderEffects":[{"shader":"...","radius":2.5,"reach":6,"params":[14,0,0,0]}]}
+```
+
+On a Retail client or server, or one with outdated oSB, the carrier is just that entity and the effect is ignored.

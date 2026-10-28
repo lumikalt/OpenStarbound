@@ -449,6 +449,18 @@ void Object::render(RenderCallback* renderCallback) {
     renderCallback->addDrawable(drawablePair.first, drawablePair.second.value(renderLayer()));
   renderCallback->addParticles(m_scriptedAnimator.pullNewParticles());
   renderCallback->addAudios(m_scriptedAnimator.pullNewAudios());
+
+  // the parameters, which other clients get too, win over the object file
+  if (auto effects = m_parameters.ptr("shaderEffects"))
+    m_shaderEffects.set(*effects);
+  else if (auto effects = m_config->config.opt("shaderEffects"))
+    m_shaderEffects.set(*effects);
+  else if (!m_shaderEffects.empty())
+    m_shaderEffects.clear();
+  if (!m_shaderEffects.empty()) {
+    for (auto& instance : m_shaderEffects.instances(position()))
+      renderCallback->addShaderEffect(std::move(instance));
+  }
 }
 
 void Object::renderLightSources(RenderCallback* renderCallback) {
