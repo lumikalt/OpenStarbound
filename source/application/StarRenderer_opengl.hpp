@@ -35,6 +35,7 @@ public:
   void loadEffectConfig(String const& name, Json const& effectConfig, StringMap<String> const& shaders) override;
   bool loadRuntimeEffect(String const& name, Json const& effectConfig, StringMap<String> const& shaders, String& error) override;
   void unloadEffect(String const& name) override;
+  void finish() override;
 
   void setEffectParameter(String const& parameterName, RenderEffectParameter const& parameter) override;
   void setEffectScriptableParameter(String const& effectName, String const& parameterName, RenderEffectParameter const& parameter) override;

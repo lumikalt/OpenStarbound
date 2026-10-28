@@ -30,6 +30,8 @@ struct ShaderEffectInstance {
   float reach;
   float age;
   Vec4F params;
+  // the viewing client is the master of the entity
+  bool local = false;
 };
 
 // Biggest source accepted from entity data
@@ -52,6 +54,17 @@ private:
   List<ShaderEffectSpec> m_specs;
   Maybe<double> m_start;
 };
+
+// Checks shader source before it is compiled.
+// No preprocessor directives, no while or do, every for loop counts an int
+// between int literals or `const int` names in at most MaxShaderLoopIterations
+// steps and leaves its variable alone, loops multiply to at most
+// MaxShaderLoopProduct and the only out/inout parameter is the one
+// effectInstance has.
+// Returns why it was rejected, if it was.
+size_t const MaxShaderLoopIterations = 64;
+size_t const MaxShaderLoopProduct = 256;
+Maybe<String> checkShaderEffectSource(String const& source);
 
 ShaderEffectSpec shaderEffectSpecFromJson(Json const& json);
 

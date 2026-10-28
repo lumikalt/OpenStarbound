@@ -73,6 +73,7 @@ SET (star_game_tests_SOURCES
       item_test.cpp
       mod_storage_test.cpp
       root_test.cpp
+      shader_effect_test.cpp
       server_test.cpp
       spawn_test.cpp
       stat_test.cpp

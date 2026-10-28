@@ -146,6 +146,10 @@ public:
   virtual bool loadRuntimeEffect(String const& name, Json const& effectConfig, StringMap<String> const& shaders, String& error) = 0;
   virtual void unloadEffect(String const& name) = 0;
 
+  // Flushes what was drawn and waits for the GPU to finish it, to time a pass.
+  // Stalls rendering, so only for the occasional measurement.
+  virtual void finish() = 0;
+
   // The effect config will specify named parameters and textures which can be
   // set here.
   virtual void setEffectParameter(String const& parameterName, RenderEffectParameter const& parameter) = 0;

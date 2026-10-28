@@ -391,7 +391,7 @@ void Projectile::render(RenderCallback* renderCallback) {
   if (!m_shaderEffects.empty()) {
     auto age = max(0.0f, m_initialTimeToLive - m_timeToLive);
     for (auto const& effect : m_shaderEffects)
-      renderCallback->addShaderEffect({effect.source, position() + effect.offset, effect.radius, effect.reach, age, effect.params});
+      renderCallback->addShaderEffect({effect.source, position() + effect.offset, effect.radius, effect.reach, age, effect.params, isMaster()});
   }
 }
 

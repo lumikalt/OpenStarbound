@@ -475,7 +475,13 @@ void ClientApplication::render() {
       LogMap::set("client_render_world_total", strf(u8"{:05d}\u00b5s", Time::monotonicMicroseconds() - totalStart));
       
       auto size = Vec2F(renderer->screenSize());
-      m_shaderEffectPainter->render(m_worldPainter->camera(), m_renderData.shaderEffects);
+      {
+        auto config = m_root->configuration();
+        ShaderEffectPainter::Settings shaderSettings;
+        shaderSettings.remote = config->get("remoteShaderEffects").optBool().value(true);
+        shaderSettings.reduced = config->get("reducedShaderEffects").optBool().value(false);
+        m_shaderEffectPainter->render(m_worldPainter->camera(), m_renderData.shaderEffects, shaderSettings);
+      }
 
       auto quad = renderFlatRect(RectF::withSize(size / -2, size), Vec4B::filled(0), 0.0f);
       for (auto& layer : m_postProcessLayers) {

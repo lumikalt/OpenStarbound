@@ -91,3 +91,34 @@ For example, in admin on a server:
 ```
 
 On a Retail client or server, or one with outdated oSB, the carrier is just that entity and the effect is ignored.
+
+## Limits and Settings
+
+The source comes from other players and runs on every viewer's GPU, so it's checked and limited to prevent arbitrary code execution.
+
+Before compilation, an effect that fails these check is skipped with a warning in the log naming the problem.
+
+- No preprocessor lines (`#version`, `#define`, …).
+- No `while` or `do`. A `for` loop must look like `for (int i = 0; i < 8; i++) { ... }`, so an `int` variable from an int literal, or a `const int NAME = 8;` declared in the source, to another, stepping by `++`, `--`, `+= N` or `-= N` in the direction of the condition. The for loop carries braces and its body may not assign to the variable. One loop runs at most 64 times and nested loops at most 256 times in all.
+- `out` and `inout` only appear once, on `effectInstance` itself, so helper functions return their results.
+- At most 16 KiB of source.
+
+While drawing, there are also certain limitations.
+
+- One new shader is compiled a frame, 32 stay loaded being disposed by LRU and a source that does not compile is not tried again.
+- A frame draws at most 8 different shaders (passes), 8 instances of each and 64 instances in all.
+- The GPU time of each pass is measured. The first three times it is drawn and then every 120th. A pass over 12 ms is a strike, three strikes in a row or one pass over 250 ms unload the shader until the game restarts or the renderer is reloaded. The first measurement of each shader is logged at info level.
+
+### Client settings
+
+These are set in `starbound.config`, no menu yet.
+
+`remoteShaderEffects`, default `true`, draws only effects of entities this client masters, i.e., its own projectiles.
+Objects and stagehands are mastered by the server so they are hidden too,
+even in single player.
+
+`reducedShaderEffects`, default `false`, caps the light an effect adds at 0.25 and the share of the picture it can hide at 35 %, which bounds how hard an effect can flash.
+It does not remove motion.
+Lensing (bending the picture) is likewise not affected.
+
+Effects draw under the interface, so they cannot cover panes, chat or the cursor.

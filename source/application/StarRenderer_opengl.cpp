@@ -377,6 +377,11 @@ void OpenGlRenderer::unloadEffect(String const& name) {
   restoreCurrentEffect(currentName);
 }
 
+void OpenGlRenderer::finish() {
+  flushImmediatePrimitives();
+  glFinish();
+}
+
 String OpenGlRenderer::currentEffectName() const {
   for (auto const& pair : m_effects) {
     if (&pair.second == m_currentEffect)
