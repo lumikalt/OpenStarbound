@@ -89,6 +89,8 @@ auto ShaderEffectPainter::loadedShader(shared_ptr<String const> const& source) -
     parameters[strf("instanceParams{}", i)] = JsonObject{{"type", "vec4"}, {"default", JsonArray{0, 0, 0, 0}}, {"uniform", strf("instanceParams[{}]", i)}, {"scriptable", true}};
   }
   Json config = JsonObject{
+    // the author's code may leave params unused, which drops the uniform
+    {"quietUnusedParameters", true},
     // reads the picture drawn so far and replaces it
     {"frameBuffer", "main"},
     {"frameBufferTextures", JsonArray{JsonObject{{"framebuffer", "main"}, {"texture", "screen"}}}},
@@ -116,8 +118,10 @@ auto ShaderEffectPainter::loadedShader(shared_ptr<String const> const& source) -
 }
 
 void ShaderEffectPainter::timePass(String const& source, LoadedShader& shader, double seconds) {
-  ++shader.timedPasses;
-  if (shader.timedPasses == 1)
+  // the first pass after a compile pays for the driver warming up, so it is not judged
+  if (++shader.timedPasses == 1 && seconds <= PassHardLimit)
+    return;
+  if (shader.timedPasses == 2)
     Logger::info("Shader effect {} takes {:.2f} ms a pass", shader.effectName, seconds * 1000);
 
   if (seconds > PassHardLimit || (seconds > PassBudget && ++shader.strikes >= StrikeLimit)) {
