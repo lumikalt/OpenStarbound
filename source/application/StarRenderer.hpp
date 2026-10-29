@@ -150,6 +150,11 @@ public:
   // Stalls rendering, so only for the occasional measurement.
   virtual void finish() = 0;
 
+  // Makes the next switchEffectConfig do its full switch (framebuffer swap and
+  // uniforms), even if that effect is still the current one, to draw it twice
+  // in a row.
+  virtual void forgetCurrentEffect() = 0;
+
   // The effect config will specify named parameters and textures which can be
   // set here.
   virtual void setEffectParameter(String const& parameterName, RenderEffectParameter const& parameter) = 0;

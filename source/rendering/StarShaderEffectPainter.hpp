@@ -33,7 +33,7 @@ public:
   static unsigned const InstancesPerPass = 8;
   // Compiled shaders kept at once, LRU dropped.
   static unsigned const MaxLoadedShaders = 32;
-  static unsigned const MaxPasses = 8;
+  static unsigned const MaxPasses = 16;
   static unsigned const MaxInstances = 64;
 
   // A pass slower than this is a strike, three in a row or one over HardLimit unload the shader.

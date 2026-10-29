@@ -186,6 +186,7 @@ void ShaderEffectPainter::render(WorldCamera const& camera, List<ShaderEffectIns
   }
 
   if (!byShader.empty()) {
+    unsigned passesDrawn = 0;
     auto quad = renderFlatRect(RectF::withSize(screenSize / -2, screenSize), Vec4B::filled(0), 0.0f);
     for (auto const& pair : byShader) {
       // looked up again as loading another shader this frame may have moved the table
@@ -196,30 +197,34 @@ void ShaderEffectPainter::render(WorldCamera const& camera, List<ShaderEffectIns
       auto const& list = pair.second;
       String effectName = shader.effectName;
 
-      // One pass per shader.
-      // Switching to the effect that is already current
-      // would not swap the framebuffers so the extra instances are dropped
-      size_t count = min<size_t>(InstancesPerPass, list.size());
-      for (size_t i = 0; i < count; ++i) {
-        auto const& instance = *list[i];
-        Vec2F center = camera.worldToScreen(instance.position);
-        m_renderer->setEffectScriptableParameter(effectName, strf("instanceArea{}", i), Vec4F(center[0], center[1], instance.radius * pixelsPerBlock, instance.age));
-        m_renderer->setEffectScriptableParameter(effectName, strf("instanceParams{}", i), instance.params);
-      }
-      m_renderer->setEffectScriptableParameter(effectName, "instanceCount", (int)count);
-      m_renderer->setEffectScriptableParameter(effectName, "lightCap", settings.reduced ? ReducedLightCap : LightCap);
-      m_renderer->setEffectScriptableParameter(effectName, "blockCap", settings.reduced ? ReducedBlockCap : BlockCap);
+      // InstancesPerPass at a time, one fullscreen pass for each batch
+      for (size_t first = 0; first < list.size() && passesDrawn < MaxPasses; first += InstancesPerPass, ++passesDrawn) {
+        size_t count = min<size_t>(InstancesPerPass, list.size() - first);
+        for (size_t i = 0; i < count; ++i) {
+          auto const& instance = *list[first + i];
+          Vec2F center = camera.worldToScreen(instance.position);
+          m_renderer->setEffectScriptableParameter(effectName, strf("instanceArea{}", i), Vec4F(center[0], center[1], instance.radius * pixelsPerBlock, instance.age));
+          m_renderer->setEffectScriptableParameter(effectName, strf("instanceParams{}", i), instance.params);
+        }
+        m_renderer->setEffectScriptableParameter(effectName, "instanceCount", (int)count);
+        m_renderer->setEffectScriptableParameter(effectName, "lightCap", settings.reduced ? ReducedLightCap : LightCap);
+        m_renderer->setEffectScriptableParameter(effectName, "blockCap", settings.reduced ? ReducedBlockCap : BlockCap);
 
-      bool timed = shader.timedPasses < FirstTimedPasses || shader.passes % TimedPassInterval == 0;
-      ++shader.passes;
-      if (timed)
-        m_renderer->finish();
-      double start = Time::monotonicTime();
-      m_renderer->switchEffectConfig(effectName);
-      m_renderer->render(quad);
-      if (timed) {
-        m_renderer->finish();
-        timePass(pair.first, shader, Time::monotonicTime() - start);
+        bool timed = shader.timedPasses < FirstTimedPasses || shader.passes % TimedPassInterval == 0;
+        ++shader.passes;
+        if (timed)
+          m_renderer->finish();
+        double start = Time::monotonicTime();
+        // a second batch of the same shader needs the full switch again
+        m_renderer->forgetCurrentEffect();
+        m_renderer->switchEffectConfig(effectName);
+        m_renderer->render(quad);
+        if (timed) {
+          m_renderer->finish();
+          timePass(pair.first, shader, Time::monotonicTime() - start);
+          if (shader.effectName.empty())
+            break;
+        }
       }
     }
   }

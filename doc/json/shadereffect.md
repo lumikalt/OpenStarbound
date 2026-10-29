@@ -47,7 +47,7 @@ vec4 effectInstance(vec2 position, vec2 center, float radius, float age, vec4 pa
 `uniform sampler2D screenTexture` is available, representing  the world drawn so far, without the interface.
 `uniform vec2 screenSize` is also available and self-explanatory.
 
-Up to 8 instances of one shader are drawn per frame, the rest are dropped.
+Instances of one shader are drawn 8 at a time, one fullscreen pass per batch.
 This is to prevent some abuse.
 
 Effects draw over the world and under the interface, so they cannot cover interface panes.
@@ -106,7 +106,7 @@ Before compilation, an effect that fails these check is skipped with a warning i
 While drawing, there are also certain limitations.
 
 - One new shader is compiled a frame, 32 stay loaded being disposed by LRU and a source that does not compile is not tried again.
-- A frame draws at most 8 different shaders (passes), 8 instances of each and 64 instances in all.
+- A frame draws at most 16 passes (8 instances of one shader each) and 64 instances in all. The rest are dropped.
 - The GPU time of each pass is measured. The first three times it is drawn and then every 120th. A pass over 12 ms is a strike, three strikes in a row or one pass over 250 ms unload the shader until the game restarts or the renderer is reloaded. The first measurement of each shader is logged at info level.
 
 ### Client settings

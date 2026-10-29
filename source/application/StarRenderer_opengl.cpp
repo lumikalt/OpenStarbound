@@ -382,6 +382,11 @@ void OpenGlRenderer::finish() {
   glFinish();
 }
 
+void OpenGlRenderer::forgetCurrentEffect() {
+  flushImmediatePrimitives();
+  m_currentEffect = nullptr;
+}
+
 String OpenGlRenderer::currentEffectName() const {
   for (auto const& pair : m_effects) {
     if (&pair.second == m_currentEffect)
