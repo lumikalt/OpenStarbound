@@ -27,7 +27,8 @@ Where:
 - `radius` is the size, in blocks, that's handed to the shader as pixels.
 - `reach` states how many radii around the center the effect touches. An instance is skipped if its circle is offscreen.
 - `offset` selects the origin point, in blocks, for the shader as an offset from the entity position.
-- `params` is a tuple of 4 floats for the shader to use as needed.
+- `params` is a tuple of 4 values for the shader to use as needed.
+  Each is either a number or the name of a live value of the carrier that is read again every frame (see "Live Parameters").
 
 ## The Shader
 
@@ -127,7 +128,7 @@ While drawing, there are also certain limitations.
 - A frame draws at most 16 passes (8 instances of one shader each) and 64 instances in all. The rest are dropped.
 - The GPU time of each pass is measured. The first three times it is drawn and then every 120th. A pass over 12 ms is a strike, three strikes in a row or one pass over 250 ms unload the shader until the game restarts or the renderer is reloaded. The first measurement of each shader is logged at info level.
 
-### Client settings
+### Client Settings
 
 These are set in `starbound.config`, no menu yet.
 
@@ -140,3 +141,31 @@ It does not remove motion.
 Lensing (bending the picture) is likewise not affected.
 
 Effects draw under the interface, so they cannot cover panes, chat or the cursor.
+
+## Live Parameters
+
+An entry of `params` can be a string instead of a number.
+If it is, the client asks the carrying entity for that value every frame, on every client, from state the entity already syncs.
+This ensures nothing extra goes over the network so a Retail peer is unaffected.
+ A name the carrier does not know gives 0.
+
+```json
+"params" : ["health", 0, "tag:charge", 0]
+```
+
+Where:
+
+`speed` is the carrier speed in blocks/s.
+Available on projectiles, monsters and NPCs.
+
+`timeLeft` is the carrier's remaining time to live percentage, from 1 to 0.
+Only for projectiles.
+
+`health` is the health percentage of the carrier, from 1 to 0.
+Available for monsters and NPCs.
+
+`tag:<name>` is the animator's global tag `<name>` read as a number.
+You can set it with `animator.setGlobalTag`.
+Available for monsters and objects.
+
+Objects and monsters can also change the tag from their own scripts, which makes any state reach the shader.

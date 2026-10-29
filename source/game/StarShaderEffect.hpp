@@ -4,9 +4,14 @@
 #include "StarVector.hpp"
 #include "StarList.hpp"
 #include "StarString.hpp"
+#include "StarArray.hpp"
 #include "StarTime.hpp"
 
 namespace Star {
+
+// Looks up the live value a `params` entry names ("speed", "tag:charge", ...) on
+// the carrying entity, 0 when it has no such thing.
+typedef function<float(String const&)> ShaderParamLookup;
 
 // A screen region effect an entity asks the client to draw.
 // GLSL source that  is shared between instances plus where, how big
@@ -21,6 +26,10 @@ struct ShaderEffectSpec {
   float radius = 1.0f; // blocks
   float reach = 1.0f;  // how many radii around the center the effect touches
   Vec4F params;
+  // Per component of params, what to look up instead of the number in it
+  Array<String, 4> bindings;
+
+  Vec4F paramsFor(ShaderParamLookup const& lookup) const;
 };
 
 struct ShaderEffectInstance {
@@ -47,7 +56,7 @@ public:
   void clear();
   bool empty() const;
 
-  List<ShaderEffectInstance> instances(Vec2F const& position);
+  List<ShaderEffectInstance> instances(Vec2F const& position, ShaderParamLookup const& lookup = {});
 
 private:
   Json m_json;

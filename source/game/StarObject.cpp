@@ -458,7 +458,14 @@ void Object::render(RenderCallback* renderCallback) {
   else if (!m_shaderEffects.empty())
     m_shaderEffects.clear();
   if (!m_shaderEffects.empty()) {
-    for (auto& instance : m_shaderEffects.instances(position()))
+    auto lookup = [&](String const& name) -> float {
+      if (name.beginsWith("tag:") && m_networkedAnimator) {
+        if (auto tag = m_networkedAnimator->globalTagPtr(name.substr(4)))
+          return maybeLexicalCast<float>(*tag).value(0.0f);
+      }
+      return 0.0f;
+    };
+    for (auto& instance : m_shaderEffects.instances(position(), lookup))
       renderCallback->addShaderEffect(std::move(instance));
   }
 }

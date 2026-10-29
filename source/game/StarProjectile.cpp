@@ -390,8 +390,15 @@ void Projectile::render(RenderCallback* renderCallback) {
 
   if (!m_shaderEffects.empty()) {
     auto age = max(0.0f, m_initialTimeToLive - m_timeToLive);
+    auto lookup = [&](String const& name) -> float {
+      if (name == "timeLeft")
+        return m_initialTimeToLive > 0 ? clamp(m_timeToLive / m_initialTimeToLive, 0.0f, 1.0f) : 0.0f;
+      if (name == "speed")
+        return m_movementController->velocity().magnitude();
+      return 0.0f;
+    };
     for (auto const& effect : m_shaderEffects)
-      renderCallback->addShaderEffect({effect.source, position() + effect.offset, effect.radius, effect.reach, age, effect.params, isMaster()});
+      renderCallback->addShaderEffect({effect.source, position() + effect.offset, effect.radius, effect.reach, age, effect.paramsFor(lookup), isMaster()});
   }
 }
 

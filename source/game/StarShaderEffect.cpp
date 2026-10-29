@@ -190,8 +190,16 @@ ShaderEffectSpec shaderEffectSpecFromJson(Json const& json) {
     spec.offset = jsonToVec2F(*offset);
   spec.radius = json.getFloat("radius", 1.0f);
   spec.reach = json.getFloat("reach", 1.0f);
-  if (auto params = json.opt("params"))
-    spec.params = jsonToVec4F(*params);
+  if (auto params = json.opt("params")) {
+    // a number or the name of a live value of the carrier
+    auto list = params->toArray();
+    for (size_t i = 0; i < 4 && i < list.size(); ++i) {
+      if (list[i].isType(Json::Type::String))
+        spec.bindings[i] = list[i].toString();
+      else
+        spec.params[i] = list[i].toFloat();
+    }
+  }
   return spec;
 }
 
@@ -226,13 +234,24 @@ bool ShaderEffectSet::empty() const {
   return m_specs.empty();
 }
 
-List<ShaderEffectInstance> ShaderEffectSet::instances(Vec2F const& position) {
+Vec4F ShaderEffectSpec::paramsFor(ShaderParamLookup const& lookup) const {
+  Vec4F result = params;
+  if (lookup) {
+    for (size_t i = 0; i < 4; ++i) {
+      if (!bindings[i].empty())
+        result[i] = lookup(bindings[i]);
+    }
+  }
+  return result;
+}
+
+List<ShaderEffectInstance> ShaderEffectSet::instances(Vec2F const& position, ShaderParamLookup const& lookup) {
   if (!m_start)
     m_start = Time::monotonicTime();
   float age = Time::monotonicTime() - *m_start;
   List<ShaderEffectInstance> instances;
   for (auto const& spec : m_specs)
-    instances.append({spec.source, position + spec.offset, spec.radius, spec.reach, age, spec.params});
+    instances.append({spec.source, position + spec.offset, spec.radius, spec.reach, age, spec.paramsFor(lookup)});
   return instances;
 }
 
