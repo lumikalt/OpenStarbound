@@ -543,6 +543,18 @@ void Npc::render(RenderCallback* renderCallback) {
 
   m_effectEmitter->render(renderCallback);
   m_songbook->render(renderCallback);
+
+  Maybe<Json> effects;
+  if (m_npcVariant.overrides.isType(Json::Type::Object))
+    effects = m_npcVariant.overrides.opt("shaderEffects");
+  if (effects)
+    m_shaderEffects.set(*effects);
+  else if (!m_shaderEffects.empty())
+    m_shaderEffects.clear();
+  if (!m_shaderEffects.empty()) {
+    for (auto& instance : m_shaderEffects.instances(position()))
+      renderCallback->addShaderEffect(std::move(instance));
+  }
 }
 
 void Npc::renderLightSources(RenderCallback* renderCallback) {

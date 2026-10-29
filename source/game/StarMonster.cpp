@@ -508,6 +508,15 @@ void Monster::render(RenderCallback* renderCallback) {
 
   m_effectEmitter.render(renderCallback);
 
+  if (auto effects = m_monsterVariant.parameters.opt("shaderEffects"))
+    m_shaderEffects.set(*effects);
+  else if (!m_shaderEffects.empty())
+    m_shaderEffects.clear();
+  if (!m_shaderEffects.empty()) {
+    for (auto& instance : m_shaderEffects.instances(position()))
+      renderCallback->addShaderEffect(std::move(instance));
+  }
+
   for (auto drawablePair : m_scriptedAnimator.drawables())
     renderCallback->addDrawable(drawablePair.first, drawablePair.second.value(m_monsterVariant.renderLayer));
   renderCallback->addAudios(m_scriptedAnimator.pullNewAudios());

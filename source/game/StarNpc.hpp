@@ -23,6 +23,7 @@
 #include "StarToolUser.hpp"
 #include "StarPhysicsEntity.hpp"
 #include "StarLuaAnimationComponent.hpp"
+#include "StarShaderEffect.hpp"
 
 namespace Star {
 
@@ -303,6 +304,8 @@ private:
   ArmorWearerPtr m_armor;
   ToolUserPtr m_tools;
   SongbookPtr m_songbook;
+
+  ShaderEffectSet m_shaderEffects;
 
   NetElementBool m_disableWornArmor;
 

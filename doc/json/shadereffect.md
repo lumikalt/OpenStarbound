@@ -4,7 +4,7 @@ OpenStarbound can draw a screen region shader effect for an entity.
 Since the shader travels with the entity, other OpenStarbound clients draw it without having the shader installed.
 
 An effect is an entry in the `shaderEffects` list of the **parameters** of an entity (`parameters` of `world.spawnProjectile`, object and monster parameters, …).
-For now, only projectiles, objects and stagehands can be carriers (see "Carriers" below), more will follow.
+For now, carriers can be projectiles, objects, stagehands, monsters and NPCs (see "Carriers" below), more will follow.
 
 This is compatible with Retail clients, which simply ignore the parameter and don't load the shader.
 
@@ -44,7 +44,7 @@ You write the one function.
 vec4 effectInstance(vec2 position, vec2 center, float radius, float age, vec4 params, inout vec2 source)
 ```
 
-`uniform sampler2D screenTexture` is available, representing  the world drawn so far, without the interface.
+`uniform sampler2D screenTexture` is available, representing the world drawn so far, without the interface.
 `uniform vec2 screenSize` is also available and self-explanatory.
 
 Instances of one shader are drawn 8 at a time, one fullscreen pass per batch.
@@ -76,7 +76,25 @@ Centered on the object's position, i.e., its origin tile, so use `offset` to mov
 
 ### Stagehand
 
-| Stagehand | `shaderEffects` in the stagehand config / overrides | As long as the stagehand, which the server owns and saves. Other clients only get a stagehand whose `broadcastArea` (default 10 x 10 blocks around it) reaches their view, so set it as large as the effect's reach. |
+Shader list goes in `shaderEffects` in the stagehand config or overrides.
+
+Lives as long as the stagehand, which the server owns and saves.
+Other clients only get a stagehand whose `broadcastArea`, default 10 x 10 blocks around it, reaches their view, so set it as large as the effect's reach.
+
+### Monster
+
+Shader list goes in `shaderEffects` in the monster's parameters, the third argument of `world.spawnMonster` or in the monster type's parameters.
+
+Lives as long as the monster.
+Follows it, centered on its position, so use `offset` as needed.
+
+### NPC
+
+Shader list goes in `shaderEffects` in the NPC's `overrides`, the fifth argument of `/spawnnpc` or the `world.spawnNpc` overrides.
+
+Lives as long as the NPC.
+Follows it.
+Set only in the overrides, an NPC type's own config is not read for it.
 
 ### Notes
 

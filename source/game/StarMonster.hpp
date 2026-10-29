@@ -19,6 +19,7 @@
 #include "StarLuaAnimationComponent.hpp"
 #include "StarLuaActorMovementComponent.hpp"
 #include "StarActorEntity.hpp"
+#include "StarShaderEffect.hpp"
 
 namespace Star {
 
@@ -165,6 +166,8 @@ private:
   StatusControllerPtr m_statusController;
 
   EffectEmitter m_effectEmitter;
+
+  ShaderEffectSet m_shaderEffects;
 
   // The set of damage source kinds that were used to kill this entity.
   StringSet m_deathDamageSourceKinds;
